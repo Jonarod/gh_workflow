@@ -35,10 +35,10 @@ jobs:
 
       - name: Build 
         uses: actions-rs/cargo@v1
-          with:
-            command: build
-            args: --release --all-features
-            use-cross: ${{ matrix.use_cross }}
+        with:
+          command: build
+          args: --release --all-features
+          use-cross: ${{ matrix.use_cross }}
 
       - name: Run build
         run: cargo build
