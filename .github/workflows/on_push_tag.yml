@@ -43,13 +43,18 @@ jobs:
       #       override: false
 
       - name: Install cargo toolchain for ${{ matrix.os }}
-        uses: dtolnay/rust-toolchain@${{ matrix.toolchain }}
+        uses: dtolnay/rust-toolchain@master
         with:
           targets: ${{ matrix.target }}
+          toolchain: ${{ matrix.toolchain }}
+
+      - name: Some logs 
+        run: echo ${{steps.toolchain.outputs.name}}
 
       - name: Install cross-rs
         shell: bash
-        run: cargo install cross --git https://github.com/cross-rs/cross
+        run: |
+          cargo install cross --git https://github.com/cross-rs/cross
         if: ${{ matrix.use-cross }}
 
       - name: Cross Build for release with cross-rs
