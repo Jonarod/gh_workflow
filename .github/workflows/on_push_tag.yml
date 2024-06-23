@@ -1,3 +1,5 @@
+# Why do I put an id sometimes and sometimes not? Because I assume steps with a `uses:` already set their own id under the hood.
+
 name: Main
 
 permissions:
@@ -44,13 +46,12 @@ jobs:
 
       - name: Install cargo toolchain for ${{ matrix.os }}
         uses: dtolnay/rust-toolchain@master
-        id: toolchain_install
         with:
           targets: ${{ matrix.target }}
           toolchain: ${{ matrix.toolchain }}
 
       - name: Some logs 
-        run: echo "${{steps.toolchain_install.output.name}}"
+        run: echo "${{steps.toolchain.output.name}}"
 
       - name: Install cross-rs
         id: cross_install
@@ -89,14 +90,12 @@ jobs:
 
       - name: Upload Archive as Artifact
         uses: actions/upload-artifact@v4
-        id: artifact_upload
         with:
           name: ${{ matrix.target }}.tag.gz
           path: ${{ matrix.target }}.tar.gz
 
       - name: Publish Artifact as Github Release
         uses: softprops/action-gh-release@v2
-        id: artifact_publish
         with:
           draft: true
           files: ${{ matrix.target }}.tar.gz
