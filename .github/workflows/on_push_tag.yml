@@ -1,5 +1,3 @@
-# Why do I put an id sometimes and sometimes not? Because I assume steps with a `uses:` already set their own id under the hood.
-
 name: Main
 
 permissions:
@@ -52,7 +50,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Some logs 
-        run: echo "${{steps.install_toolchain.outputs.name}}"
+        run: echo "${{steps.install_toolchain.outputs.name}} ${{steps.install_toolchain.outputs.cachekey}}"
 
       - name: Install cross-rs
         id: cross_install
