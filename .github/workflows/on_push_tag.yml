@@ -46,13 +46,13 @@ jobs:
 
       - name: Install cargo toolchain for ${{ matrix.os }}
         uses: dtolnay/rust-toolchain@master
-        id: toolchain
+        id: install_toolchain
         with:
           targets: ${{ matrix.target }}
           toolchain: ${{ matrix.toolchain }}
 
       - name: Some logs 
-        run: echo "${{steps.toolchain.outputs.name}}"
+        run: echo "${{steps.install_toolchain.outputs.name}}"
 
       - name: Install cross-rs
         id: cross_install
