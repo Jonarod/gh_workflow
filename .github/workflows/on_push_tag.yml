@@ -51,7 +51,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Some logs 
-        run: echo "${{steps.toolchain.output.name}}"
+        run: echo ${{steps.toolchain.outputs.name}}
 
       - name: Install cross-rs
         id: cross_install
