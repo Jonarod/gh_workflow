@@ -20,12 +20,12 @@ bump: ## Bump the version number
 
 push: ## Git push a new commit
 	@git add .
-	@read -p "Commit message: " commit_message; \
-	git commit -m "$$commit_message"
+	@read -p "Commit message: " commit_message; git commit -m "$$commit_message"
 	@git push -u origin main
 
 push_new_release: ## Git push as a new release
-	make bump
-	make push
+	@# echo v$(shell cargo pkgid | cut -d# -f2)
+	@# make bump
+	@make push
 	@git tag v$(shell cargo pkgid | cut -d# -f2)
-	@git push -u origin $(shell cargo pkgid | cut -d# -f2)
+	@git push -u origin v$(shell cargo pkgid | cut -d# -f2)
