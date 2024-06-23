@@ -3,11 +3,11 @@ name: Main
 permissions:
   contents: write
 
-on: [push]
+on: ['push']
 
 jobs:
   build:
-    name: Build
+    name: Release
     strategy:
       matrix:
         include:
@@ -15,6 +15,7 @@ jobs:
             target: x86_64-unknown-linux-gnu
             toolchain: nightly
             use-cross: false
+
           - os: macos-14 # M1
             target: aarch64-apple-darwin
             use-cross: false
@@ -23,8 +24,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     steps:
-      - name: Checkout
+      - name: Checkout Repo
         uses: actions/checkout@v4
+
+      # - name: Cache cargo & target directories
+      #   uses: Swatinem/rust-cache@v2
+      #   with:
+      #     key: "v2"
 
       - name: Install latest nightly for ${{ matrix.os }}
         uses: actions-rs/toolchain@v1
@@ -33,12 +39,44 @@ jobs:
             target: ${{ matrix.target }}
             override: false
 
-      - name: Build 
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
-          use-cross: ${{ matrix.use_cross }}
+      # - name: Build 
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: build
+      #     args: --release --all-features
+      #     use-cross: ${{ matrix.use_cross }}
 
-      - name: Run build
-        run: cargo build
+      - name: Build for release
+        shell: bash
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+
+      # - name: Run tests
+      #   uses: houseabsolute/actions-rust-cross@v0
+      #   with:
+      #     command: "test"
+      #     target: ${{ matrix.target }}
+      #     toolchain: ${{ matrix.toolchain }}
+      #     args: "--release"
+      #   if: ${{ !matrix.skip_tests }}
+
+      - name: Package as archive
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czvf ../../../${{ matrix.target }}.tar.gz $(ls -F . | grep "*" | sed "s/\*\$//")
+          cd -
+
+      # Release only if push in a refs/tags/
+      - name: Publish release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}.tag.gz
+          path: ${{ matrix.target }}.tar.gz
+        if: startsWith(github.ref, 'refs/tags/')
+
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     files: ${{ matrix.target }}.tar.gz
