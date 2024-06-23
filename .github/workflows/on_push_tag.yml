@@ -44,26 +44,30 @@ jobs:
 
       - name: Install cargo toolchain for ${{ matrix.os }}
         uses: dtolnay/rust-toolchain@master
+        id: toolchain_install
         with:
           targets: ${{ matrix.target }}
           toolchain: ${{ matrix.toolchain }}
 
       - name: Some logs 
-        run: echo "${{steps}}"
+        run: echo "${{steps.toolchain_install.output.name}}"
 
       - name: Install cross-rs
+        id: cross_install
         shell: bash
         run: |
           cargo install cross --git https://github.com/cross-rs/cross
         if: ${{ matrix.use-cross }}
 
       - name: Cross Build for release with cross-rs
+        id: cross_build
         shell: bash
         run: |
           cross build --release --target ${{ matrix.target }}
         if: ${{ matrix.use-cross }}
 
       - name: Build for release with cargo
+        id: cargo_build
         shell: bash
         run: |
           cargo build --release --target ${{ matrix.target }}
@@ -76,6 +80,7 @@ jobs:
       #   if: ${{ !matrix.skip_tests }}
 
       - name: Package as an Archive
+        id: packaging
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
@@ -84,12 +89,14 @@ jobs:
 
       - name: Upload Archive as Artifact
         uses: actions/upload-artifact@v4
+        id: artifact_upload
         with:
           name: ${{ matrix.target }}.tag.gz
           path: ${{ matrix.target }}.tar.gz
 
       - name: Publish Artifact as Github Release
         uses: softprops/action-gh-release@v2
+        id: artifact_publish
         with:
           draft: true
           files: ${{ matrix.target }}.tar.gz
